@@ -1,9 +1,9 @@
+
 from textblob import TextBlob
 import nltk
 from textblob import Word
 import sys
-import json
-
+ques=[]
 
 def parse(string):
 
@@ -11,9 +11,9 @@ def parse(string):
     try:
         txt = TextBlob(string)
         for sentence in txt.sentences:
-
-            info=json.loads(genQuestion(sentence))
-            print(info)
+            genQuestion(sentence)
+        for x in range(len(ques)):
+        	print(ques[x])
 
     except Exception as e:
         raise e
@@ -21,6 +21,7 @@ def parse(string):
 
 
 def genQuestion(line):
+    global ques
     if type(line) is str:     
         line = TextBlob(line) 
 
@@ -99,8 +100,9 @@ def genQuestion(line):
         question = question.replace(" ’ ","'s ")
 
     # Print the genetated questions as output.
-    if question != '':        
-        return json.dumps(question)
+    if question != '':
+        ques=ques.append(question)
+        print('\n', 'Question: ' + question )
    
 
 def main():  
