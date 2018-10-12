@@ -1,0 +1,1 @@
+API Development in Python is a very easy task. This tutorial will help you to create a basic REST API in Python with the Flask Framework. REST APIs are pretty much everywhere. They are the standard method to expose databases to clients and knowing how to develop a REST API is a necessity at all layers of the stack
