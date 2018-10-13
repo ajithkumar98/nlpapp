@@ -9,17 +9,15 @@ from flask_restful import Api, Resource, reqparse
 
 app = Flask(__name__)
 api = Api(app)
-ques=[]
+
 
 def genQuestion(line):
-    global ques
     if type(line) is str:
         line = TextBlob(line)
     bucket = {}
     for i,j in enumerate(line.tags):
         if j[1] not in bucket:
             bucket[j[1]] = i
-
     question = ' '            # Create an empty string 
 
     l1 = ['NNP', 'VBG', 'VBZ', 'IN']
@@ -71,8 +69,7 @@ def genQuestion(line):
         question = question.replace(" ’ ","'s ")
 
 # Print the genetated questions as output.
-    if question != '':   
-    	ques=ques.append(question)     
+    if question != '':        
         return json.dumps(question)
 
 
@@ -81,11 +78,11 @@ class User(Resource):
         txt = TextBlob(string)
         for sentence in txt.sentences:
             info=json.loads(genQuestion(sentence))
-        for x in range(len(ques)):
-        	print(x":"ques[x])
-        return ques
+            return "hey man"
 
 
 
+if __name__=='__main__':
+	app.run()
 api.add_resource(User, "/user/<string:string>")
 app.run(debug=True)

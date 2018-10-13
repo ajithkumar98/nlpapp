@@ -1,47 +1,29 @@
-
+# coding: utf-8
 from textblob import TextBlob
 import nltk
 from textblob import Word
 import sys
-ques=[]
+import json
 
-def parse(string):
+from flask import Flask
+from flask_restful import Api, Resource, reqparse
 
-    
-    try:
-        txt = TextBlob(string)
-        for sentence in txt.sentences:
-            genQuestion(sentence)
-        for x in range(len(ques)):
-        	print(ques[x])
-
-    except Exception as e:
-        raise e
-
+app = Flask(__name__)
+api = Api(app)
 
 
 def genQuestion(line):
-    if type(line) is str:     
-        line = TextBlob(line) 
-
-    bucket = {}               
-
-
-    for i,j in enumerate(line.tags):  
+    if type(line) is str:
+        line = TextBlob(line)
+    bucket = {}
+    for i,j in enumerate(line.tags):
         if j[1] not in bucket:
-            bucket[j[1]] = i  
-    
-    if verbose:               
-        print('\n','-'*20)
-        print(line ,'\n')        
-        print("TAGS:",line.tags, '\n')  
-        print(bucket)
-    
+            bucket[j[1]] = i
     question = ' '            # Create an empty string 
 
     l1 = ['NNP', 'VBG', 'VBZ', 'IN']
     l2 = ['NNP', 'VBG', 'VBZ']
-    
+
 
     l3 = ['PRP', 'VBG', 'VBZ', 'IN']
     l4 = ['PRP', 'VBG', 'VBZ']
@@ -57,25 +39,14 @@ def genQuestion(line):
     l12 = ['NNP', 'NN', 'IN']
     l13 = ['NN', 'VBZ']
 
-
-    
-
-    
     if all(key in  bucket for key in l1): 
         question = 'What' + ' ' + line.words[bucket['VBZ']] +' '+ line.words[bucket['NNP']]+ ' '+ line.words[bucket['VBG']] + '?'
-
-    
     elif all(key in  bucket for key in l2):
         question = 'What' + ' ' + line.words[bucket['VBZ']] +' '+ line.words[bucket['NNP']] +' '+ line.words[bucket['VBG']] + '?'
-
-    
     elif all(key in  bucket for key in l3): 
         question = 'What' + ' ' + line.words[bucket['VBZ']] +' '+ line.words[bucket['PRP']]+ ' '+ line.words[bucket['VBG']] + '?'
-
-    
     elif all(key in  bucket for key in l4): 
         question = 'What ' + line.words[bucket['PRP']] +' '+  ' does ' + line.words[bucket['VBG']]+ ' '+  line.words[bucket['VBG']] + '?'
-
     elif all(key in  bucket for key in l7): 
         question = 'What' + ' ' + line.words[bucket['VBZ']] +' '+ line.words[bucket['NN']] +' '+ line.words[bucket['VBG']] + '?'
 
@@ -98,35 +69,19 @@ def genQuestion(line):
     if 'VBZ' in bucket and line.words[bucket['VBZ']] == "’":
         question = question.replace(" ’ ","'s ")
 
-    # Print the genetated questions as output.
-    if question != '':
-        print('\n', 'Question: ' + question )
-   
+# Print the genetated questions as output.
+    if question != '':        
+        return json.dumps(question)
 
-def main():  
-    """
-    Accepts a text file as an argument and generates questions from it.
-    """
-    
-    global verbose 
-    verbose = False
 
-    
-    if len(sys.argv) >= 3: 
-        if sys.argv[2] == '-v':
-            print('Verbose Mode Activated\n')
-            verbose = True
+class User(Resource):
+    def get(self, string):
+        txt = TextBlob(string)
+        for sentence in txt.sentences:
+            info=json.loads(genQuestion(sentence))
+            return "hey man"
 
-    # Open the file given as argument in read-only mode.
-    filehandle = open(sys.argv[1], 'r')
-    textinput = filehandle.read()
-    print('\n-----------INPUT TEXT-------------\n')
-    print(textinput,'\n')
-    print('\n-----------INPUT END---------------\n')
 
-    
-    parse(textinput)
 
-if __name__ == "__main__":
-    main()
-
+api.add_resource(User, "/user/<string:string>")
+app.run(debug=True)
